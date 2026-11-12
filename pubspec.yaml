@@ -1,0 +1,25 @@
+name: bookstore_app
+description: A new Flutter project for BookStore eProject.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  sqflite: ^2.3.0
+  sqflite_common_ffi_web: ^0.4.3
+  # sqlite3.wasm (web/) ke version se match karne ke liye exact pin
+  sqlite3: 2.4.6
+  path: ^1.8.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
