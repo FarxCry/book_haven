@@ -1,4 +1,4 @@
-﻿name: Build Book Haven APK
+name: Build Book Haven APK
 
 on:
   push:

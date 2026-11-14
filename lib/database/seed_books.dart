@@ -1,4 +1,4 @@
-﻿Map<String, dynamic> _b(
+Map<String, dynamic> _b(
   String title,
   String author,
   String genre,
@@ -34,7 +34,7 @@ final List<Map<String, dynamic>> seedBooks = [
       best: true, isbn: '9780135957059'),
   _b('Flutter Apprentice', 'Ray Wenderlich', 'Programming', 2200, 88, '2026-02-20',
       'Learn to build cross-platform mobile apps using Dart and Flutter from scratch.',
-      isNew: true),
+      isNew: true, isbn: '9781950325542'),
   _b('Refactoring', 'Martin Fowler', 'Programming', 2600, 90, '2026-03-18',
       'A catalogue of small, safe code transformations that improve design without changing behaviour.',
       isNew: true, isbn: '9780134757599'),
@@ -79,7 +79,7 @@ final List<Map<String, dynamic>> seedBooks = [
   _b('The Power of Habit', 'Charles Duhigg', 'Self-Help', 1150, 88, '2025-02-17',
       'The science behind habit loops and how people and companies change them.',
       isbn: '9780812981605'),
-  _b('Ikigai', 'HÃ©ctor GarcÃ­a & Francesc Miralles', 'Self-Help', 990, 90, '2026-02-02',
+  _b('Ikigai', 'Héctor García & Francesc Miralles', 'Self-Help', 990, 90, '2026-02-02',
       'Lessons from Japan on finding purpose and living a long, meaningful life.',
       isNew: true, isbn: '9780143130727'),
   _b('Think and Grow Rich', 'Napoleon Hill', 'Self-Help', 800, 87, '2025-01-22',
@@ -115,4 +115,3 @@ final List<Map<String, dynamic>> seedBooks = [
       'A clear introduction to black holes, the Big Bang and the nature of time.',
       isbn: '9780553380163'),
 ];
-

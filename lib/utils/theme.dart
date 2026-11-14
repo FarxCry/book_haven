@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 class AppColors {
   static const ink = Color(0xFF1B1F2A);
@@ -132,4 +132,3 @@ ThemeData buildTheme() {
     ),
   );
 }
-

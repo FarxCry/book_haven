@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../database/db_helper.dart';
 import '../utils/session.dart';
@@ -24,8 +24,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController searchCtrl = TextEditingController();
   Timer? _debounce;
 
-  List> allBooks = [];
-  List> filtered = [];
+  List<Map<String, dynamic>> allBooks = [];
+  List<Map<String, dynamic>> filtered = [];
   Map<int, Map<String, dynamic>> ratings = {};
   Set<int> wishIds = {};
   int cartCount = 0;
@@ -166,7 +166,6 @@ class _HomeScreenState extends State<HomeScreen> {
     if (ok != true || !mounted) return;
     await dbHelper.clearSavedSession();
     UserSession.logout();
-    if (!mounted) return;
     Navigator.pushAndRemoveUntil(
         context, MaterialPageRoute(builder: (_) => const AuthScreen()), (r) => false);
   }
@@ -180,6 +179,8 @@ class _HomeScreenState extends State<HomeScreen> {
       _applyFilters();
     });
   }
+
+  // ---------------------------------------------------------------- UI
 
   @override
   Widget build(BuildContext context) {
@@ -200,16 +201,15 @@ class _HomeScreenState extends State<HomeScreen> {
               title: Row(children: [
                 const AppLogo(size: 32),
                 const SizedBox(width: 10),
-                Flexible(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(kAppName, style: serif(20)),
-                    Text('Hi, ${UserSession.name.split(' ').first}',
-                        style: const TextStyle(
-                            fontSize: 12, color: AppColors.muted, fontWeight: FontWeight.w400)),
-                  ],
-                )),
+                Flexible(child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(kAppName, style: serif(20)),
+                  Text('Hi, ${UserSession.name.split(' ').first}',
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.muted, fontWeight: FontWeight.w400)),
+                ],
+              )),
               ]),
               actions: [
                 IconButton(
@@ -322,7 +322,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
 
-  Widget _bestsellerStrip(List> books) {
+  Widget _bestsellerStrip(List<Map<String, dynamic>> books) {
     return SizedBox(
       height: 236,
       child: ListView.separated(
