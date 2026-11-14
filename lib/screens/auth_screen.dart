@@ -43,7 +43,6 @@ class _AuthScreenState extends State<AuthScreen> {
       ..showSnackBar(SnackBar(content: Text(m)));
   }
 
-  // Quick login buttons are protected by a PIN (no credentials are filled in).
   static const Map<String, String> _quickPins = {'user': '420', 'admin': '5595'};
   static const Map<String, List<String>> _quickAccounts = {
     'user': ['user@gmail.com', 'user123'],
@@ -363,7 +362,6 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 }
 
-/// Asks for a numeric PIN. Pops true when the PIN is correct.
 class _PinDialog extends StatefulWidget {
   final String title;
   final String expectedPin;
@@ -425,4 +423,3 @@ class _PinDialogState extends State<_PinDialog> {
     );
   }
 }
-
