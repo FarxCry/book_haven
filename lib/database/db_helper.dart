@@ -20,7 +20,7 @@ class DBHelper {
         : join(await getDatabasesPath(), 'bookstore_eproject.db');
     return openDatabase(
       path,
-      version: 4,
+      version: 5,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -103,7 +103,7 @@ class DBHelper {
         } catch (_) {}
       }
     }
-    if (oldVersion < 4) {
+    if (oldVersion < 5) {
       await db.execute('CREATE TABLE IF NOT EXISTS active_session (id INTEGER PRIMARY KEY, userId INTEGER)');
       await db.delete('cart');
       await db.delete('wishlist');

@@ -15,6 +15,7 @@ dependencies:
   # sqlite3.wasm (web/) ke version se match karne ke liye exact pin
   sqlite3: 2.4.6
   path: ^1.8.3
+  cached_network_image: ^3.3.1
 
 dev_dependencies:
   flutter_test:

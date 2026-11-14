@@ -1,8 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../utils/theme.dart';
 
-/// Shows the cover image. If it is missing or fails to load (offline, CORS,
-/// bad link) a designed gradient cover with the title is shown instead.
+/// Shows the cover image and permanently caches it on device storage.
+/// If it is missing or fails to load (offline, CORS, bad link) a designed
+/// gradient cover with the title is shown instead.
 class BookCover extends StatelessWidget {
   final Map<String, dynamic> book;
   final BoxFit fit;
@@ -21,14 +23,14 @@ class BookCover extends StatelessWidget {
   Widget build(BuildContext context) {
     final url = (book['coverUrl'] ?? '').toString().trim();
     if (url.isEmpty) return _fallback();
-    return Image.network(
-      url,
+    return CachedNetworkImage(
+      imageUrl: url,
       fit: fit,
-      cacheWidth: 400,
-      filterQuality: FilterQuality.medium,
-      gaplessPlayback: true,
-      loadingBuilder: (ctx, child, progress) => progress == null ? child : _fallback(),
-      errorBuilder: (ctx, error, stack) => _fallback(),
+      memCacheWidth: 360,
+      fadeInDuration: const Duration(milliseconds: 120),
+      fadeOutDuration: Duration.zero,
+      placeholder: (ctx, _) => _fallback(),
+      errorWidget: (ctx, _, __) => _fallback(),
     );
   }
 
