@@ -27,46 +27,27 @@ class DBHelper {
   }
 
   Future<void> _onCreate(Database db, int version) async {
-    await db.execute('''
-      CREATE TABLE users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT, email TEXT UNIQUE, password TEXT, phone TEXT,
-        address TEXT, paymentMethod TEXT, role TEXT
-      )''');
-    await db.execute('''
-      CREATE TABLE books (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT, author TEXT, genre TEXT, description TEXT, coverUrl TEXT,
-        price REAL, popularity INTEGER, releaseDate TEXT,
-        isBestseller INTEGER, isNewArrival INTEGER
-      )''');
-    await db.execute('''
-      CREATE TABLE cart (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        userId INTEGER, bookId INTEGER, quantity INTEGER
-      )''');
-    await db.execute('''
-      CREATE TABLE wishlist (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        userId INTEGER, bookId INTEGER
-      )''');
-    await db.execute('''
-      CREATE TABLE reviews (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        bookId INTEGER, userName TEXT, rating REAL, comment TEXT, likes INTEGER
-      )''');
-    await db.execute('''
-      CREATE TABLE orders (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        userId INTEGER, totalAmount REAL, shippingAddress TEXT,
-        paymentMethod TEXT, status TEXT, orderDate TEXT, itemsSummary TEXT,
-        customerName TEXT, phone TEXT, note TEXT
-      )''');
-    await db.execute('''
-      CREATE TABLE IF NOT EXISTS active_session (
-        id INTEGER PRIMARY KEY,
-        userId INTEGER
-      )''');
+    await db.execute(
+      'CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, email TEXT UNIQUE, password TEXT, phone TEXT, address TEXT, paymentMethod TEXT, role TEXT)'
+    );
+    await db.execute(
+      'CREATE TABLE books (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, author TEXT, genre TEXT, description TEXT, coverUrl TEXT, price REAL, popularity INTEGER, releaseDate TEXT, isBestseller INTEGER, isNewArrival INTEGER)'
+    );
+    await db.execute(
+      'CREATE TABLE cart (id INTEGER PRIMARY KEY AUTOINCREMENT, userId INTEGER, bookId INTEGER, quantity INTEGER)'
+    );
+    await db.execute(
+      'CREATE TABLE wishlist (id INTEGER PRIMARY KEY AUTOINCREMENT, userId INTEGER, bookId INTEGER)'
+    );
+    await db.execute(
+      'CREATE TABLE reviews (id INTEGER PRIMARY KEY AUTOINCREMENT, bookId INTEGER, userName TEXT, rating REAL, comment TEXT, likes INTEGER)'
+    );
+    await db.execute(
+      'CREATE TABLE orders (id INTEGER PRIMARY KEY AUTOINCREMENT, userId INTEGER, totalAmount REAL, shippingAddress TEXT, paymentMethod TEXT, status TEXT, orderDate TEXT, itemsSummary TEXT, customerName TEXT, phone TEXT, note TEXT)'
+    );
+    await db.execute(
+      'CREATE TABLE IF NOT EXISTS active_session (id INTEGER PRIMARY KEY, userId INTEGER)'
+    );
 
     await db.insert('users', {
       'name': 'Admin Manager',
@@ -137,7 +118,6 @@ class DBHelper {
 
   Rows _rows(List> r) => List>.from(r);
 
-  // --- PERSISTENT SESSION ---
   Future<void> saveSession(int userId) async {
     final d = await db;
     await d.execute('CREATE TABLE IF NOT EXISTS active_session (id INTEGER PRIMARY KEY, userId INTEGER)');
@@ -161,7 +141,6 @@ class DBHelper {
     await d.delete('active_session');
   }
 
-  // --- AUTH & PROFILE ---
   Future?> loginUser(String email, String password) async {
     final d = await db;
     final res = await d.query('users',
@@ -189,7 +168,6 @@ class DBHelper {
     return d.update('users', data, where: 'id = ?', whereArgs: [id]);
   }
 
-  // --- BOOKS ---
   Future<Rows> getBooks() async {
     final d = await db;
     return _rows(await d.query('books'));
@@ -215,7 +193,6 @@ class DBHelper {
     });
   }
 
-  // --- CART ---
   Future<void> addToCart(int userId, int bookId) async {
     final d = await db;
     final check = await d.query('cart',
@@ -231,12 +208,10 @@ class DBHelper {
 
   Future<Rows> getCartItems(int userId) async {
     final d = await db;
-    return _rows(await d.rawQuery('''
-      SELECT cart.id AS cartId, cart.quantity, books.*
-      FROM cart INNER JOIN books ON cart.bookId = books.id
-      WHERE cart.userId = ?
-      ORDER BY cart.id DESC
-    ''', [userId]));
+    return _rows(await d.rawQuery(
+      'SELECT cart.id AS cartId, cart.quantity, books.* FROM cart INNER JOIN books ON cart.bookId = books.id WHERE cart.userId = ? ORDER BY cart.id DESC',
+      [userId]
+    ));
   }
 
   Future<int> getCartCount(int userId) async {
@@ -255,7 +230,6 @@ class DBHelper {
     }
   }
 
-  // --- WISHLIST ---
   Future<bool> toggleWishlist(int userId, int bookId) async {
     final d = await db;
     final check = await d.query('wishlist',
@@ -284,15 +258,12 @@ class DBHelper {
 
   Future<Rows> getWishlist(int userId) async {
     final d = await db;
-    return _rows(await d.rawQuery('''
-      SELECT wishlist.id AS wishId, books.*
-      FROM wishlist INNER JOIN books ON wishlist.bookId = books.id
-      WHERE wishlist.userId = ?
-      ORDER BY wishlist.id DESC
-    ''', [userId]));
+    return _rows(await d.rawQuery(
+      'SELECT wishlist.id AS wishId, books.* FROM wishlist INNER JOIN books ON wishlist.bookId = books.id WHERE wishlist.userId = ? ORDER BY wishlist.id DESC',
+      [userId]
+    ));
   }
 
-  // --- REVIEWS ---
   Future<Rows> getReviews(int bookId) async {
     final d = await db;
     return _rows(await d.query('reviews',
@@ -322,7 +293,6 @@ class DBHelper {
     await d.rawUpdate('UPDATE reviews SET likes = COALESCE(likes, 0) + 1 WHERE id = ?', [reviewId]);
   }
 
-  // --- ORDERS ---
   Future<int> checkout(int userId, Map<String, dynamic> order) async {
     final d = await db;
     return d.transaction((txn) async {
@@ -340,11 +310,9 @@ class DBHelper {
 
   Future<Rows> getAllOrders() async {
     final d = await db;
-    return _rows(await d.rawQuery('''
-      SELECT orders.*, COALESCE(NULLIF(orders.customerName, ''), users.name) AS buyerName
-      FROM orders LEFT JOIN users ON users.id = orders.userId
-      ORDER BY orders.id DESC
-    '''));
+    return _rows(await d.rawQuery(
+      "SELECT orders.*, COALESCE(NULLIF(orders.customerName, ''), users.name) AS buyerName FROM orders LEFT JOIN users ON users.id = orders.userId ORDER BY orders.id DESC"
+    ));
   }
 
   Future<void> updateOrderStatus(int orderId, String status) async {

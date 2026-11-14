@@ -23,7 +23,7 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Configure Android, Logo, Internet & Build APK
+      - name: Build APK
         run: |
           rm -rf android pubspec.lock
           cp lib/database/db_factory_stub.dart lib/database/db_factory.dart
@@ -33,14 +33,19 @@ jobs:
           flutter create --platforms=android --org com.muhammadusman.bookhaven .
           sed -i 's/<application/<uses-permission android:name="android.permission.INTERNET"\/>\n    <application/g' android/app/src/main/AndroidManifest.xml
           sed -i 's/android:label="[^"]*"/android:label="Book Haven"/g' android/app/src/main/AndroidManifest.xml
-          python3 -m pip install pillow
+          pip install pillow
           python3 -c "
-          from PIL import Image
+          from PIL import Image, ImageDraw
           import glob
-          icon = Image.open('web/icons/Icon-512.png').convert('RGBA')
+          s = 512
+          img = Image.new('RGBA', (s, s), (0, 0, 0, 0))
+          d = ImageDraw.Draw(img)
+          d.rounded_rectangle([0, 0, s-1, s-1], radius=int(s*0.24), fill=(14, 107, 99, 255))
+          d.polygon([(int(0.17*s), int(0.36*s)), (int(0.48*s), int(0.40*s)), (int(0.48*s), int(0.78*s)), (int(0.17*s), int(0.74*s))], fill=(255, 255, 255, 255))
+          d.polygon([(int(0.83*s), int(0.36*s)), (int(0.52*s), int(0.40*s)), (int(0.52*s), int(0.78*s)), (int(0.83*s), int(0.74*s))], fill=(255, 255, 255, 255))
+          d.line([(int(0.20*s), int(0.30*s)), (int(0.50*s), int(0.12*s)), (int(0.80*s), int(0.30*s))], fill=(242, 169, 59, 255), width=int(s*0.075), joint='curve')
           for p in glob.glob('android/app/src/main/res/mipmap-*/ic_launcher*.png'):
-              orig = Image.open(p)
-              icon.resize(orig.size, Image.Resampling.LANCZOS).save(p, 'PNG')
+              img.save(p)
           "
           flutter pub get
           flutter build apk --release --split-per-abi --no-tree-shake-icons
