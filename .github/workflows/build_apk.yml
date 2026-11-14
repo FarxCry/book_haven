@@ -33,12 +33,15 @@ jobs:
           flutter create --platforms=android --org com.muhammadusman.bookhaven .
           sed -i 's/<application/<uses-permission android:name="android.permission.INTERNET"\/>\n    <application/g' android/app/src/main/AndroidManifest.xml
           sed -i 's/android:label="[^"]*"/android:label="Book Haven"/g' android/app/src/main/AndroidManifest.xml
-          rm -rf android/app/src/main/res/mipmap-anydpi-v26
-          cp web/icons/Icon-512.png android/app/src/main/res/mipmap-mdpi/ic_launcher.png
-          cp web/icons/Icon-512.png android/app/src/main/res/mipmap-hdpi/ic_launcher.png
-          cp web/icons/Icon-512.png android/app/src/main/res/mipmap-xhdpi/ic_launcher.png
-          cp web/icons/Icon-512.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
-          cp web/icons/Icon-512.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+          python3 -m pip install pillow
+          python3 -c "
+          from PIL import Image
+          import glob
+          icon = Image.open('web/icons/Icon-512.png').convert('RGBA')
+          for p in glob.glob('android/app/src/main/res/mipmap-*/ic_launcher*.png'):
+              orig = Image.open(p)
+              icon.resize(orig.size, Image.Resampling.LANCZOS).save(p, 'PNG')
+          "
           flutter pub get
           flutter build apk --release --split-per-abi --no-tree-shake-icons
 
