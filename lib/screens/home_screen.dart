@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:flutter/material.dart';
 import '../database/db_helper.dart';
 import '../utils/session.dart';
@@ -164,6 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
     if (ok != true || !mounted) return;
+    await dbHelper.clearSavedSession();
     UserSession.logout();
     Navigator.pushAndRemoveUntil(
         context, MaterialPageRoute(builder: (_) => const AuthScreen()), (r) => false);
@@ -687,3 +688,4 @@ class _BookCard extends StatelessWidget {
     );
   }
 }
+

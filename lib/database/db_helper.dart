@@ -3,7 +3,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'seed_books.dart';
 
-typedef Rows = List<Map<String, dynamic>>;
+typedef Rows = List>;
 
 class DBHelper {
   static Database? _db;
@@ -20,7 +20,7 @@ class DBHelper {
         : join(await getDatabasesPath(), 'bookstore_eproject.db');
     return openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -62,9 +62,14 @@ class DBHelper {
         paymentMethod TEXT, status TEXT, orderDate TEXT, itemsSummary TEXT,
         customerName TEXT, phone TEXT, note TEXT
       )''');
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS active_session (
+        id INTEGER PRIMARY KEY,
+        userId INTEGER
+      )''');
 
     await db.insert('users', {
-      'name': 'Admin Manager Usman',
+      'name': 'Admin Manager',
       'email': 'admin@bookstore.com',
       'password': 'admin123',
       'phone': '03001234567',
@@ -85,23 +90,20 @@ class DBHelper {
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 2) {
-      try {
-        await db.execute('ALTER TABLE orders ADD COLUMN itemsSummary TEXT');
-      } catch (_) {}
-      // Catalog was replaced with the bigger one, so old references are cleared.
+    if (oldVersion < 3) {
+      for (final col in ['itemsSummary', 'customerName', 'phone', 'note']) {
+        try {
+          await db.execute('ALTER TABLE orders ADD COLUMN $col TEXT');
+        } catch (_) {}
+      }
+    }
+    if (oldVersion < 4) {
+      await db.execute('CREATE TABLE IF NOT EXISTS active_session (id INTEGER PRIMARY KEY, userId INTEGER)');
       await db.delete('cart');
       await db.delete('wishlist');
       await db.delete('reviews');
       await db.delete('books');
       await _seedBooks(db);
-    }
-    if (oldVersion < 3) {
-      for (final col in ['customerName', 'phone', 'note']) {
-        try {
-          await db.execute('ALTER TABLE orders ADD COLUMN $col TEXT');
-        } catch (_) {}
-      }
     }
   }
 
@@ -133,10 +135,34 @@ class DBHelper {
     }
   }
 
-  Rows _rows(List<Map<String, Object?>> r) => List<Map<String, dynamic>>.from(r);
+  Rows _rows(List> r) => List>.from(r);
+
+  // --- PERSISTENT SESSION ---
+  Future<void> saveSession(int userId) async {
+    final d = await db;
+    await d.execute('CREATE TABLE IF NOT EXISTS active_session (id INTEGER PRIMARY KEY, userId INTEGER)');
+    await d.delete('active_session');
+    await d.insert('active_session', {'id': 1, 'userId': userId});
+  }
+
+  Future?> getSavedSessionUser() async {
+    final d = await db;
+    await d.execute('CREATE TABLE IF NOT EXISTS active_session (id INTEGER PRIMARY KEY, userId INTEGER)');
+    final s = await d.query('active_session', limit: 1);
+    if (s.isEmpty) return null;
+    final uid = (s.first['userId'] as num).toInt();
+    final u = await d.query('users', where: 'id = ?', whereArgs: [uid], limit: 1);
+    return u.isEmpty ? null : Map<String, dynamic>.from(u.first);
+  }
+
+  Future<void> clearSavedSession() async {
+    final d = await db;
+    await d.execute('CREATE TABLE IF NOT EXISTS active_session (id INTEGER PRIMARY KEY, userId INTEGER)');
+    await d.delete('active_session');
+  }
 
   // --- AUTH & PROFILE ---
-  Future<Map<String, dynamic>?> loginUser(String email, String password) async {
+  Future?> loginUser(String email, String password) async {
     final d = await db;
     final res = await d.query('users',
         where: 'LOWER(email) = ? AND password = ?',
@@ -151,7 +177,6 @@ class DBHelper {
     return d.insert('users', data);
   }
 
-  /// Password is reset only when both email and registered phone match.
   Future<int> resetPassword(String email, String phone, String newPassword) async {
     final d = await db;
     return d.update('users', {'password': newPassword},
@@ -180,7 +205,6 @@ class DBHelper {
     return d.update('books', book, where: 'id = ?', whereArgs: [id]);
   }
 
-  /// Deleting a book also removes it from carts, wishlists and reviews.
   Future<void> deleteBook(int id) async {
     final d = await db;
     await d.transaction((txn) async {
@@ -232,7 +256,6 @@ class DBHelper {
   }
 
   // --- WISHLIST ---
-  /// Returns true when the book is in the wishlist after the call.
   Future<bool> toggleWishlist(int userId, int bookId) async {
     final d = await db;
     final check = await d.query('wishlist',
@@ -276,8 +299,7 @@ class DBHelper {
         where: 'bookId = ?', whereArgs: [bookId], orderBy: 'id DESC'));
   }
 
-  /// bookId -> {avg: double, count: int}
-  Future<Map<int, Map<String, dynamic>>> getRatingsMap() async {
+  Future>> getRatingsMap() async {
     final d = await db;
     final r = await d.rawQuery(
         'SELECT bookId, AVG(rating) AS avg, COUNT(*) AS cnt FROM reviews GROUP BY bookId');
@@ -301,7 +323,6 @@ class DBHelper {
   }
 
   // --- ORDERS ---
-  /// Places the order and empties the cart in one transaction.
   Future<int> checkout(int userId, Map<String, dynamic> order) async {
     final d = await db;
     return d.transaction((txn) async {

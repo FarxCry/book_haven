@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../database/db_helper.dart';
 import '../utils/session.dart';
 import '../utils/theme.dart';
@@ -68,6 +68,7 @@ class _AuthScreenState extends State<AuthScreen> {
         return;
       }
       UserSession.currentUser = user;
+      await dbHelper.saveSession(asInt(user['id']));
       if (!mounted) return;
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (_) => const HomeScreen()));
@@ -106,6 +107,7 @@ class _AuthScreenState extends State<AuthScreen> {
         return;
       }
       UserSession.currentUser = user;
+      await dbHelper.saveSession(asInt(user['id']));
       if (!mounted) return;
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (_) => const HomeScreen()));
@@ -423,3 +425,4 @@ class _PinDialogState extends State<_PinDialog> {
     );
   }
 }
+
