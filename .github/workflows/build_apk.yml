@@ -23,13 +23,36 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Build Light Release APK
+      - name: Set Custom Logo, App Name & Build APK
         run: |
+          rm -rf android pubspec.lock
+          cp lib/database/db_factory_stub.dart lib/database/db_factory.dart
+          rm -f lib/database/db_factory_web.dart
+          sed -i '/sqflite_common_ffi_web/d' pubspec.yaml
+          sed -i '/sqlite3:/d' pubspec.yaml
+          flutter create --platforms=android --org com.muhammadusman.bookhaven .
+          
+          # Android Home Screen par naam 'Book Haven By Muhammad Usman' lagana
+          sed -i 's/android:label="[^"]*"/android:label="Book Haven By Muhammad Usman"/g' android/app/src/main/AndroidManifest.xml
+          
+          # Tumhara apna Book Haven logo (web/icons/Icon-512.png) APK icon par lagana
+          flutter pub add --dev flutter_launcher_icons
+          cat << 'EOF' >> pubspec.yaml
+
+flutter_launcher_icons:
+  android: true
+  image_path: "web/icons/Icon-512.png"
+  adaptive_icon_background: "#083F3B"
+  adaptive_icon_foreground: "web/icons/Icon-512.png"
+EOF
           flutter pub get
+          dart run flutter_launcher_icons
+          
+          # Build Release APK
           flutter build apk --release --split-per-abi --no-tree-shake-icons
 
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
-          name: Book-Haven-Release-APK
+          name: Book-Haven-By-Muhammad-Usman-APK
           path: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk

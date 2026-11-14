@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 class AppColors {
   static const ink = Color(0xFF1B1F2A);
@@ -11,7 +11,7 @@ class AppColors {
   static const line = Color(0xFFE3E7EA);
 }
 
-const String kAppName = 'Book Haven';
+const String kAppName = 'Book Haven By Muhammad Usman';
 const String kTagline = 'Every Great Read, One Tap Away';
 
 const List<String> kSerif = ['Georgia', 'Times New Roman', 'serif'];
