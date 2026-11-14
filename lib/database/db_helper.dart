@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
+﻿import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'seed_books.dart';
@@ -64,7 +64,7 @@ class DBHelper {
       )''');
 
     await db.insert('users', {
-      'name': 'Admin Manager',
+      'name': 'Admin Manager Usman',
       'email': 'admin@bookstore.com',
       'password': 'admin123',
       'phone': '03001234567',
@@ -73,7 +73,7 @@ class DBHelper {
       'role': 'admin'
     });
     await db.insert('users', {
-      'name': 'Muhammad Subhan',
+      'name': 'Muhammad Usman',
       'email': 'user@gmail.com',
       'password': 'user123',
       'phone': '03120000000',
